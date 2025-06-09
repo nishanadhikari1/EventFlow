@@ -148,30 +148,39 @@
 
 ```
 [User]
-  - user_id (PK)
+  - _id (PK)
   - name
   - email
   - password_hash
-  - role (Admin / Organizer / Participant)
+
+[Organization]
+  - _id (PK)
+  - name
+
+[Membership]
+  - _id
+  - organization_id (FK)
+  - user_id (FK)
 
 [Event]
-  - event_id (PK)
+  - _id (PK)
   - title
   - description
   - date
-  - organizer_id (FK)
+  - organization_id (FK)
 
-[CustomFormField]
-  - field_id (PK)
-  - event_id (FK)
-  - label
-  - field_type
-  - required
+[Registration_Form]
+  - _id
+  - title
+  - subtitle
+  - description
+
 
 [Registration]
-  - registration_id (PK)
+  - _id (PK)
   - event_id (FK)
   - participant_id (FK)
+  - registration_form (json)
   - timestamp
 
 [Attendance]
