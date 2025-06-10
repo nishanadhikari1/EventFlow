@@ -57,6 +57,8 @@ const FIELD_ATTRIBUTES = {
 	},
     image:{
         label: { type: "string" },
+		placeholder: { type: "string" },
+		required: { type: "boolean", label: "Required" },
     }
 };
 

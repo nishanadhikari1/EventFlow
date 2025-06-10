@@ -1,11 +1,23 @@
 import { useState } from "react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+	arrayMove,
+	SortableContext,
+	useSortable,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Type, ImageIcon, GripVertical } from "lucide-react";
+import { Type, GripVertical } from "lucide-react";
 import FieldPalette from "./LeftSection";
 import FieldEditor from "./RightSection";
 import { FIELD_TYPES } from "./constants";
+import {
+	CheckBoxElement,
+	RadioElement,
+	TextElement,
+	DefaultElement,
+	ImageElement,
+} from "./components/FormElements";
 
 const SortableField = ({ field, index, onClick, isSelected }) => {
 	const { attributes, listeners, setNodeRef, transform, transition } =
@@ -54,77 +66,28 @@ const SortableField = ({ field, index, onClick, isSelected }) => {
 			</div>
 
 			{field.type === "text" ? (
-				<textarea
-					name={field.id}
-					id={field.id}
-					placeholder={field.placeholder || "Enter text..."}
-					className={field.multiLine?"w-full border border-gray-300 rounded px-3 py-2 text-sm ":"w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none !h-10"}
-					rows={field.multiLine?3:1}
-					disabled
-				/>
+				<TextElement field={field} />
 			) : field.type === "checkbox" ? (
-				<div className="flex justify-center flex-col gap-1">
-					{field.options &&
-						field.options.length > 0 &&
-						field.options.map((option, idx) => (
-							<div key={idx} className="flex items-center mr-4">
-								<input
-									type="checkbox"
-									className="mr-2 h-4 w-4"
-									id={`checkbox-option-${idx}`}
-									disabled
-								/>
-								<label
-									className="text-sm text-gray-600"
-									htmlFor={`checkbox-option-${idx}`}
-								>
-									{option}
-								</label>
-							</div>
-						))}
-				</div>
+				<CheckBoxElement field={field} />
 			) : field.type === "radio" ? (
-				<div className="flex justify-center flex-col gap-1">
-					{field.options &&
-						field.options.length > 0 &&
-						field.options.map((option, idx) => (
-							<div key={idx} className="flex items-center mr-4">
-								<input
-									type="radio"
-									className="mr-2 h-4 w-4"
-									name={`radio-option-for-${index}`}
-									value={option}
-									disabled
-								/>
-								<label
-									className="text-sm text-gray-600"
-									htmlFor={`checkbox-option-${idx}`}
-								>
-									{option}
-								</label>
-							</div>
-						))}
-				</div>
+				<RadioElement field={field} />
 			) : field.type === "image" ? (
-				<div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-					<ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-					<span className="text-sm text-gray-500">
-						Click to upload image
-					</span>
-				</div>
+				<ImageElement field={field} />
 			) : (
-				<input
-					type={field.type}
-					placeholder={field.placeholder || "Enter value..."}
-					className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-					disabled
-				/>
+				<DefaultElement field={field} />
 			)}
 		</div>
 	);
 };
 
-const FormCanvas = ({ fields, setFields, editIndex, setEditIndex, headers, setHeaders }) => {
+const FormCanvas = ({
+	fields,
+	setFields,
+	editIndex,
+	setEditIndex,
+	headers,
+	setHeaders,
+}) => {
 	const handleDragEnd = (event) => {
 		const { active, over } = event;
 		if (active.id !== over?.id) {
@@ -145,13 +108,41 @@ const FormCanvas = ({ fields, setFields, editIndex, setEditIndex, headers, setHe
 				</span>
 			</div>
 			<div>
-				<div onClick={()=>setEditIndex(null)} className="mb-3">
+				<div onClick={() => setEditIndex(null)} className="mb-3">
 					<div className="h-3 w-full bg-red-500 rounded-t-2xl"></div>
-					<div className="p-5 rounded-b-2xl bg-white border border-gray-200 shadow-xs flex flex-col mb-3"> 
-						<input className="text-3xl font-semibold mb-1.5 outline-0" value={headers.title} onChange={(e)=>setHeaders({...headers,title:e.target.value})}/>
-						<input className=" text-lg font-semibold mb-3 outline-0" value={headers.subtitle} onChange={(e)=>setHeaders({...headers,subtitle:e.target.value})}/>
-						<p contenteditable="true" spellCheck={false} className="text-gray-600 mb-3 outline-0" value={headers.description} onChange={(e)=>setHeaders({...headers,description:e.target.value})}>
-							Lorem ipsum dolor sit, amet consectetur adipisicing elit. Incidunt vero sequi aspernatur, expedita doloribus porro vitae qui similique quaerat, repellendus cumque autem mollitia quidem rem error a maiores. Nostrum id soluta omnis veniam harum quos quisquam ipsa mollitia quia doloribus corporis sed vero inventore quo, quis earum dolores nihil voluptatem.
+					<div className="p-5 rounded-b-2xl bg-white border border-gray-200 shadow-xs flex flex-col mb-3">
+						<input
+							className="text-3xl font-semibold mb-1.5 outline-0"
+							value={headers.title}
+							onChange={(e) =>
+								setHeaders({
+									...headers,
+									title: e.target.value,
+								})
+							}
+						/>
+						<input
+							className=" text-lg font-semibold mb-3 outline-0"
+							value={headers.subtitle}
+							onChange={(e) =>
+								setHeaders({
+									...headers,
+									subtitle: e.target.value,
+								})
+							}
+						/>
+						<p
+							ref={function(e){if(e != null) e.contentEditable=true;}}
+							spellCheck={false}
+							className="text-gray-600 mb-3 outline-0"
+							onInput={(e) =>
+								setHeaders({
+									...headers,
+									description: e.target.innerText.trim(),
+								})
+							}
+						>
+							{headers.description}
 						</p>
 					</div>
 				</div>
@@ -193,9 +184,13 @@ const FormCanvas = ({ fields, setFields, editIndex, setEditIndex, headers, setHe
 
 export default function FormBuilder() {
 	const [fields, setFields] = useState([]);
-	const [headers, setHeaders] = useState({ title: "Form Title", subtitle: "Form Subtitle", description: "Form Description" });
+	const [headers, setHeaders] = useState({
+		title: "Form Title",
+		subtitle: "Form Subtitle",
+		description: "Form Description",
+	});
 	const [editIndex, setEditIndex] = useState(null);
-	console.log(fields);
+
 	const addField = (type) => {
 		const newField = {
 			id: crypto.randomUUID(),
